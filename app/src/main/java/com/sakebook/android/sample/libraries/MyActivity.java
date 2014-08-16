@@ -5,22 +5,27 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Context;
-import android.os.Build;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.Gravity;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
+
+import com.github.johnpersano.supertoasts.SuperToast;
+import com.github.johnpersano.supertoasts.util.Style;
+import com.sakebook.android.dialoghelper.CustomDialogsListener;
+import com.sakebook.android.dialoghelper.DialogHelper;
+import com.sakebook.android.dialoghelper.SimpleDialogsListener;
+
+import java.util.ArrayList;
 
 
-public class MyActivity extends Activity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MyActivity extends FragmentActivity
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, SimpleDialogsListener, CustomDialogsListener {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -49,11 +54,43 @@ public class MyActivity extends Activity
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
                 .commit();
+        switch (position) {
+            case 0:
+                DialogHelper.customCreate(this)
+                        .setLayout(R.layout.dialog_layout)
+                        .setEventList(getEventList())
+                        .build();
+                break;
+            case 1:
+                DialogHelper.create(this)
+                        .setTitle("This is a simple Dialog")
+                        .setMessage("Can't close back button")
+                        .setPositive(getString(R.string.positive))
+                        .setNeutral(getString(R.string.neutral))
+                        .setNegative(getString(R.string.negative))
+                        .setBackCancelable(false)
+                        .setTouchCancelable(false)
+                        .build();
+
+                break;
+            case 2:
+                DialogHelper.create(this)
+                        .setTitle("This is a simple Dialog")
+                        .setMessage("Can close back button")
+                        .setPositive(getString(R.string.positive))
+                        .setNeutral(getString(R.string.neutral))
+                        .setNegative(getString(R.string.negative))
+                        .setBackCancelable(true)
+                        .setTouchCancelable(true)
+                        .build();
+                break;
+        }
+
+
     }
 
     public void onSectionAttached(int number) {
@@ -103,6 +140,66 @@ public class MyActivity extends Activity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void simplePositiveClick(DialogInterface dialogInterface, int i) {
+        SuperToast.create(this, "Positive", SuperToast.Duration.VERY_SHORT,
+                Style.getStyle(Style.BLUE, SuperToast.Animations.FLYIN)).show();
+
+    }
+
+    @Override
+    public void simpleNegativeClick(DialogInterface dialogInterface, int i) {
+        SuperToast.create(this, "Negative", SuperToast.Duration.VERY_SHORT,
+                Style.getStyle(Style.ORANGE, SuperToast.Animations.FLYIN)).show();
+
+    }
+
+    @Override
+    public void simpleNeutralClick(DialogInterface dialogInterface, int i) {
+        SuperToast.create(this, "Neutral", SuperToast.Duration.VERY_SHORT,
+                Style.getStyle(Style.GREEN, SuperToast.Animations.FLYIN)).show();
+
+    }
+
+    @Override
+    public void simpleCancel(DialogInterface dialogInterface, int i) {
+        SuperToast.create(this, "Cancel", SuperToast.Duration.VERY_SHORT,
+                Style.getStyle(Style.RED, SuperToast.Animations.FLYIN)).show();
+
+    }
+
+    @Override
+    public void simpleDismiss(int i) {
+        SuperToast.create(this, "Dismiss", SuperToast.Duration.VERY_SHORT,
+                Style.getStyle(Style.GRAY, SuperToast.Animations.FLYIN)).show();
+    }
+
+    @Override
+    public void customClick(int i, View view) {
+        if (view.getId() == R.id.nice) {
+            SuperToast.create(this, "Nice!!", SuperToast.Duration.VERY_SHORT,
+                    Style.getStyle(Style.BLUE, SuperToast.Animations.FLYIN)).show();
+            return;
+        }
+        if (view.getId() == R.id.bad) {
+            SuperToast.create(this, "BAD!", SuperToast.Duration.VERY_SHORT,
+                    Style.getStyle(Style.ORANGE, SuperToast.Animations.FLYIN)).show();
+            return;
+        }
+    }
+
+    @Override
+    public void customCancel(int i) {
+        SuperToast.create(this, "Cancel", SuperToast.Duration.VERY_SHORT,
+                Style.getStyle(Style.RED, SuperToast.Animations.FLYIN)).show();
+    }
+
+    @Override
+    public void customDismiss(int i) {
+        SuperToast.create(this, "Dismiss", SuperToast.Duration.VERY_SHORT,
+                Style.getStyle(Style.GRAY, SuperToast.Animations.FLYIN)).show();
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -143,4 +240,10 @@ public class MyActivity extends Activity
         }
     }
 
+    private ArrayList<Integer> getEventList() {
+        ArrayList<Integer> eventList = new ArrayList<Integer>();
+        eventList.add(R.id.bad);
+        eventList.add(R.id.nice);
+        return eventList;
+    }
 }
